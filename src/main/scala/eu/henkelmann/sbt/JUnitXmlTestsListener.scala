@@ -114,15 +114,15 @@ class JUnitXmlTestsListener(val outputDir:String) extends TestsListener
     var testSuite:TestSuite = null
     
     /**Creates the output Dir*/
-    def doInit() = {targetDir.mkdirs()}
+    override def doInit() = {targetDir.mkdirs()}
     
     /** Starts a new, initially empty Suite with the given name.
      */
-    def startGroup(name: String) {testSuite = new TestSuite(name)}
+    override def startGroup(name: String) {testSuite = new TestSuite(name)}
     
     /** Adds all details for the given even to the current suite.
      */
-    def testEvent(event: TestEvent): Unit = for (e <- event.detail) {testSuite.addEvent(e)}
+    override def testEvent(event: TestEvent): Unit = for (e <- event.detail) {testSuite.addEvent(e)}
 
     /** called for each class or equivalent grouping 
      *  We map one group to one Testsuite, so for each Group 
@@ -146,7 +146,7 @@ class JUnitXmlTestsListener(val outputDir:String) extends TestsListener
      *  
      *  I don't know how to measure the time for each testcase, so it has to remain "0.0" for now :(
      */
-    def endGroup(name: String, t: Throwable) = {
+    override def endGroup(name: String, t: Throwable) = {
         System.err.println("Throwable escaped the test run of '" + name + "': " + t)
         t.printStackTrace(System.err)
     }
@@ -154,13 +154,13 @@ class JUnitXmlTestsListener(val outputDir:String) extends TestsListener
     /** Ends the current suite, wraps up the result and writes it to an XML file
      *  in the output folder that is named after the suite.
      */
-    def endGroup(name: String, result: Result.Value) = {
-        XML.saveFull (new File(targetDir, testSuite.name + ".xml").getAbsolutePath, testSuite.stop(), "UTF-8", true, null)
+    override def endGroup(name: String, result: TestResult.Value) = {
+        XML.save (new File(targetDir, testSuite.name + ".xml").getAbsolutePath, testSuite.stop(), "UTF-8", true, null)
     }
     
     /**Does nothing, as we write each file after a suite is done.*/
-    def doComplete(finalResult: Result.Value): Unit = {}
+    override def doComplete(finalResult: TestResult.Value): Unit = {}
     
     /**Returns None*/
-    override def contentLogger: Option[TLogger] = None
+    override def contentLogger(test: TestDefinition): Option[ContentLogger] = None
 }
