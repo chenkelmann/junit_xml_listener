@@ -4,6 +4,7 @@ import _root_.sbt._
 import java.io.{StringWriter, PrintWriter, File}
 import java.net.InetAddress
 import scala.collection.mutable.ListBuffer
+import scala.util.DynamicVariable
 import scala.xml.{Elem, Node, XML}
 import org.scalatools.testing.{Event => TEvent, Result => TResult, Logger => TLogger}
 /*
@@ -111,18 +112,18 @@ class JUnitXmlTestsListener(val outputDir:String) extends TestsListener
     }
     
     /**The currently running test suite*/
-    var testSuite:TestSuite = null
+    var testSuite = new DynamicVariable(null: TestSuite) 
     
     /**Creates the output Dir*/
     override def doInit() = {targetDir.mkdirs()}
     
     /** Starts a new, initially empty Suite with the given name.
      */
-    override def startGroup(name: String) {testSuite = new TestSuite(name)}
+    override def startGroup(name: String) {testSuite.value_=(new TestSuite(name))}
     
     /** Adds all details for the given even to the current suite.
      */
-    override def testEvent(event: TestEvent): Unit = for (e <- event.detail) {testSuite.addEvent(e)}
+    override def testEvent(event: TestEvent): Unit = for (e <- event.detail) {testSuite.value.addEvent(e)}
 
     /** called for each class or equivalent grouping 
      *  We map one group to one Testsuite, so for each Group 
@@ -155,7 +156,7 @@ class JUnitXmlTestsListener(val outputDir:String) extends TestsListener
      *  in the output folder that is named after the suite.
      */
     override def endGroup(name: String, result: TestResult.Value) = {
-        XML.save (new File(targetDir, testSuite.name + ".xml").getAbsolutePath, testSuite.stop(), "UTF-8", true, null)
+        XML.save (new File(targetDir, testSuite.value.name + ".xml").getAbsolutePath, testSuite.value.stop(), "UTF-8", true, null)
     }
     
     /**Does nothing, as we write each file after a suite is done.*/
