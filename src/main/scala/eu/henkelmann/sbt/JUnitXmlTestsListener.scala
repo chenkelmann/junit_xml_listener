@@ -148,14 +148,26 @@ class JUnitXmlTestsListener(val outputDir:String) extends TestsListener
      *  I don't know how to measure the time for each testcase, so it has to remain "0.0" for now :(
      */
     override def endGroup(name: String, t: Throwable) = {
-        System.err.println("Throwable escaped the test run of '" + name + "': " + t)
-        t.printStackTrace(System.err)
+        // create our own event to record the error
+        val event = new TEvent {
+            def testName = name
+            def description = 
+              "Throwable escaped the test run of '%s'".format(name)
+            def result = TResult.Error
+            def error = t
+        }
+        testSuite.value.addEvent(event)
+        writeSuite()
     }
     
     /** Ends the current suite, wraps up the result and writes it to an XML file
      *  in the output folder that is named after the suite.
      */
     override def endGroup(name: String, result: TestResult.Value) = {
+        writeSuite()
+    }
+
+    private def writeSuite() = {
         XML.save (new File(targetDir, testSuite.value.name + ".xml").getAbsolutePath, testSuite.value.stop(), "UTF-8", true, null)
     }
     
