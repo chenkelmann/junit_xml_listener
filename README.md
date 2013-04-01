@@ -30,3 +30,6 @@ Version History
 ---------------
 
 * 0.4-SNAPSHOT first version published to maven central (snapshots)
+* 0.3 Merge of Ismael Juma's adjustments to sbt 0.10+
+* 0.2 Added handling of skipped tests (thanks to Johannes Rudolph)
+* 0.1 Initial release
