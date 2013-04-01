@@ -4,15 +4,32 @@ name := "junit_xml_listener"
 
 description := "A simple plugin that outputs JUnit-Style XML Files that contain Test results."
 
+//sbtVersion := "0.11.3"
+
+//scalaVersion := "2.9.1"
+
+//sbtVersion := "0.12.0"
+
+//scalaVersion := "2.9.2"
+
+//sbtVersion := "0.12.1"
+
+//scalaVersion := "2.9.2"
+
+//sbtVersion := "0.12.2"
+
+//scalaVersion := "2.9.2"
+
+sbtVersion := "0.12.3"
+
 scalaVersion := "2.9.2"
+
 
 publishMavenStyle := true
 
 organization := "eu.henkelmann"
 
 version := "0.4-SNAPSHOT"
-
-crossScalaVersions in ThisBuild := Seq("2.9.1", "2.9.2")
 
 scalacOptions := Seq("-deprecation", "-unchecked")
 
