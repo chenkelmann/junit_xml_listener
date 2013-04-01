@@ -10,10 +10,6 @@ publishMavenStyle := true
 
 organization := "eu.henkelmann"
 
-resolvers += "Scala Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/" 
-
-resolvers += "Scala" at "https://oss.sonatype.org/content/groups/scala-tools/"
-
 version := "0.4-SNAPSHOT"
 
 crossScalaVersions in ThisBuild := Seq("2.9.1", "2.9.2")
@@ -33,7 +29,7 @@ publishArtifact in Test := false
 pomIncludeRepository := { _ => false }
 
 pomExtra := (
-  <url>https://github.com/chenkelmann/actuarius</url>
+  <url>https://github.com/chenkelmann/junit_xml_listener</url>
   <licenses>
     <license>
       <name>MIT</name>
