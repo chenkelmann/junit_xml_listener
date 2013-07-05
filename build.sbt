@@ -20,7 +20,7 @@ description := "A simple plugin that outputs JUnit-Style XML Files that contain 
 
 //scalaVersion := "2.9.2"
 
-sbtVersion := "0.12.3"
+sbtVersion := "0.12.4"
 
 scalaVersion := "2.9.2"
 
