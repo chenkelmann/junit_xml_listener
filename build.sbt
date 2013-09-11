@@ -20,9 +20,16 @@ description := "A simple plugin that outputs JUnit-Style XML Files that contain 
 
 //scalaVersion := "2.9.2"
 
-sbtVersion := "0.12.3"
+//looks like that after much trial and error this seems to be the right definition for sbt 0.12.x
 
-scalaVersion := "2.9.2"
+//sbtVersion := "0.12"
+
+//scalaVersion := "2.9.2"
+
+sbtVersion := "0.13"
+
+scalaVersion := "2.10.2"
+
 
 
 publishMavenStyle := true
