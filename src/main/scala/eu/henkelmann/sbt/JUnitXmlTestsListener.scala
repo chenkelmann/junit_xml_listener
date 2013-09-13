@@ -14,6 +14,12 @@ https://github.com/harrah/test-interface
 */
 
 
+import sbt.testing.Event
+import sbt.testing.Status
+import sbt.testing.OptionalThrowable
+import sbt.testing.Fingerprint
+
+
 /**
  * A tests listener that outputs the results it receives in junit xml 
  * report format.
@@ -43,12 +49,12 @@ class JUnitXmlTestsListener(val outputDir:String) extends TestsListener
      * Each TestSuite gets its own output file.
      */
     class TestSuite(val name:String) {
-        val events:ListBuffer[TEvent] = new ListBuffer()
+        val events:ListBuffer[Event] = new ListBuffer()
         val start                     = System.currentTimeMillis
         var end                       = System.currentTimeMillis
         
         /**Adds one test result to this suite.*/
-        def addEvent(e:TEvent) = events += e
+        def addEvent(e:Event) = events += e
         
         /** Returns a triplet with the number of errors, failures and the 
           * total numbers of tests in this suite.
@@ -56,9 +62,9 @@ class JUnitXmlTestsListener(val outputDir:String) extends TestsListener
         def count():(Int, Int, Int) = {
             var errors, failures = 0
             for (e <- events) {
-                e.result match {
-                    case TResult.Error   => errors +=1
-                    case TResult.Failure => failures +=1 
+                e.status match {
+                    case Status.Error   => errors +=1
+                    case Status.Failure => failures +=1 
                     case _               => 
                 }
             }
@@ -80,23 +86,23 @@ class JUnitXmlTestsListener(val outputDir:String) extends TestsListener
                 {properties}
                 {
                     for (e <- events) yield
-                    <testcase classname={name} name={e.testName} time={"0.0"}> {
-                        var trace:String = if (e.error!=null) {
+                    <testcase classname={name} name={e.fullyQualifiedName} time={"0.0"}> {
+                        var trace:String = if (e.throwable.isDefined) {
                             val stringWriter = new StringWriter()
                             val writer = new PrintWriter(stringWriter)
-                            e.error.printStackTrace(writer)
+                            e.throwable.get.printStackTrace(writer)
                             writer.flush()
                             stringWriter.toString
                         }
                         else {
                             ""
                         }
-                        e.result match {
-                            case TResult.Error   if (e.error!=null) => <error message={e.error.getMessage} type={e.error.getClass.getName}>{trace}</error>
-                            case TResult.Error                      => <error message={"No Exception or message provided"} />
-                            case TResult.Failure if (e.error!=null) => <failure message={e.error.getMessage} type={e.error.getClass.getName}>{trace}</failure>
-                            case TResult.Failure                    => <failure message={"No Exception or message provided"} />
-                            case TResult.Skipped                    => <skipped />
+                        e.status match {
+                            case Status.Error   if (e.throwable.isDefined) => <error message={e.throwable.get.getMessage} type={e.throwable.get.getClass.getName}>{trace}</error>
+                            case Status.Error                      => <error message={"No Exception or message provided"} />
+                            case Status.Failure if (e.throwable.isDefined) => <failure message={e.throwable.get.getMessage} type={e.throwable.get.getClass.getName}>{trace}</failure>
+                            case Status.Failure                    => <failure message={"No Exception or message provided"} />
+                            case Status.Skipped                    => <skipped />
                             case _               => {}
                             }
                     }
@@ -149,12 +155,15 @@ class JUnitXmlTestsListener(val outputDir:String) extends TestsListener
      */
     override def endGroup(name: String, t: Throwable) = {
         // create our own event to record the error
-        val event = new TEvent {
-            def testName = name
-            def description = 
-              "Throwable escaped the test run of '%s'".format(name)
-            def result = TResult.Error
-            def error = t
+        val event = new Event {
+            def fullyQualifiedName= name
+            //def description = 
+              //"Throwable escaped the test run of '%s'".format(name)
+              def duration = -1
+            def status  = Status.Error
+            def fingerprint = null
+            def selector = null
+            def throwable = new OptionalThrowable(t)
         }
         testSuite.value.addEvent(event)
         writeSuite()
