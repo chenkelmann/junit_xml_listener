@@ -4,7 +4,7 @@ name := "junit_xml_listener"
 
 organization := "eu.henkelmann"
 
-version := "0.3"
+version := "0.4-SNAPSHOT"
 
 scalacOptions := Seq("-deprecation", "-unchecked")
 
