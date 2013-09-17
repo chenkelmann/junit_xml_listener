@@ -6,7 +6,7 @@ import java.net.InetAddress
 import scala.collection.mutable.ListBuffer
 import scala.util.DynamicVariable
 import scala.xml.{Elem, Node, XML}
-import testing.{Event => TEvent, Status => TStatus, OptionalThrowable, Fingerprint}
+import testing.{Event => TEvent, Status => TStatus, OptionalThrowable, Fingerprint, TestSelector}
 /*
 The api for the test interface defining the results and events
 can be found here:
@@ -63,12 +63,19 @@ class JUnitXmlTestsListener(val outputDir:String) extends TestsListener
             val (errors, failures, tests) = (count(TStatus.Error), count(TStatus.Failure), events.size)
 
             val result = <testsuite hostname={hostname} name={name}
-                           tests={tests + ""} errors={errors + ""} failures={failures + ""} 
+                           tests={tests + ""} errors={errors + ""} failures={failures + ""}
                            time={(duration/1000.0).toString} >
                 {properties}
                 {
                     for (e <- events) yield
-                    <testcase classname={name} name={e.fullyQualifiedName} time={"0.0"}> {
+                    <testcase classname={name}
+                              name={
+                                e.selector match {
+                                  case selector: TestSelector => selector.testName
+                                  case _ => "(It is not a test)"
+                                }
+                              }
+                              time={"0.0"}> {
                         var trace:String = if (e.throwable.isDefined) {
                             val stringWriter = new StringWriter()
                             val writer = new PrintWriter(stringWriter)
@@ -100,7 +107,7 @@ class JUnitXmlTestsListener(val outputDir:String) extends TestsListener
     }
 
     /**The currently running test suite*/
-    var testSuite = new DynamicVariable(null: TestSuite) 
+    var testSuite = new DynamicVariable(null: TestSuite)
 
     /**Creates the output Dir*/
     override def doInit() = {targetDir.mkdirs()}
@@ -139,7 +146,7 @@ class JUnitXmlTestsListener(val outputDir:String) extends TestsListener
         // create our own event to record the error
         val event = new TEvent {
             def fullyQualifiedName= name
-            //def description = 
+            //def description =
               //"Throwable escaped the test run of '%s'".format(name)
               def duration = -1
             def status  = TStatus.Error
