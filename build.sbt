@@ -36,7 +36,7 @@ publishMavenStyle := true
 
 organization := "eu.henkelmann"
 
-version := "0.4-SNAPSHOT"
+version := "0.4.1-SNAPSHOT"
 
 scalacOptions := Seq("-deprecation", "-unchecked")
 
